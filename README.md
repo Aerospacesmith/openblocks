@@ -6,8 +6,6 @@ This is a fork of [MIT OpenBlocks](http://education.mit.edu/drupal/openblocks)
 
 The principal objective of the fork is to make the code more amenable to inclusion to other projects.
 
-If you're building a web application, you might want to consider http://code.google.com/p/blockly/ as well.
-
 Getting Started:
 ------
 	$ mvn clean package
@@ -18,6 +16,7 @@ To do:
 
 * upgrade code maintainability from the academic baseline to the commercial baseline
 * replace static singletons with contexts and instances
+* separate the model from the UI
 
 Done:
 -----
