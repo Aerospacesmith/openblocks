@@ -82,7 +82,7 @@ public class CTextField extends JFormattedTextField implements MouseListener, Mo
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
 
-        g2.setColor(Color.white);
+        g2.setColor(Color.black);
         g2.fillRoundRect(0, 0, w, h, h, h);
 
         if (mouseover) {
@@ -96,7 +96,7 @@ public class CTextField extends JFormattedTextField implements MouseListener, Mo
         }
         g2.fill(this.getXBox(w, h));
 
-        g2.setColor(Color.white);
+        g2.setColor(Color.black);
         g2.setStroke(new BasicStroke(2));
         g2.draw(this.getXCross(w, h));
 

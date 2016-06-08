@@ -64,7 +64,7 @@ public class CBorderlessButton extends CButton {
         }
         // Draw the text (if any)
         if (this.getText() != null) {
-            g2.setColor(Color.white);
+            g2.setColor(Color.black);
             Font font = g2.getFont().deriveFont((float) (((float) buttonHeight) * .5));
             g2.setFont(font);
             FontMetrics metrics = g2.getFontMetrics();

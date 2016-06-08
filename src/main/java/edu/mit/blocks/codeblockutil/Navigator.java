@@ -98,7 +98,7 @@ final public class Navigator {
         explorers = new ArrayList<Explorer>();
         view = new JPanel();
         position = 0;
-        view.setBackground(Color.darkGray);
+        view.setBackground(Color.white);
         view.setLayout(null);
         this.scroll = new JScrollPane(view,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
@@ -341,7 +341,7 @@ final public class Navigator {
 
         private ExplorerSwitcher() {
             leftLabel = new JLabel("", SwingConstants.LEFT);
-            leftLabel.setForeground(Color.white);
+            leftLabel.setForeground(Color.black);
             leftLabel.setFont(new Font("Arial", Font.PLAIN, LABEL_HEIGHT));
             leftArrow = new CArrowButton(CArrowButton.Direction.WEST) {
                 private static final long serialVersionUID = 328149080296L;
@@ -353,7 +353,7 @@ final public class Navigator {
             leftArrow.setPreferredSize(ARROW_DIMENSION);
 
             rightLabel = new JLabel("", SwingConstants.RIGHT);
-            rightLabel.setForeground(Color.white);
+            rightLabel.setForeground(Color.black);
             rightLabel.setFont(new Font("Arial", Font.PLAIN, LABEL_HEIGHT));
             rightArrow = new CArrowButton(CArrowButton.Direction.EAST) {
                 private static final long serialVersionUID = 328149080297L;
@@ -366,7 +366,7 @@ final public class Navigator {
 
             mainLabel = new JLabel("", SwingConstants.CENTER);
             mainLabel.setFont(new Font("Arial", Font.BOLD, 15));
-            mainLabel.setForeground(Color.white);
+            mainLabel.setForeground(Color.black);
             mainLabel.setOpaque(false);
 
             setLayout(new GridBagLayout());

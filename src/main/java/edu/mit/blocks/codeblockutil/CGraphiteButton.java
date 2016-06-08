@@ -68,15 +68,15 @@ public class CGraphiteButton extends CButton {
         int highlightWidth = buttonWidth - (HIGHLIGHT_INSET * 2) + 1;
         if (this.pressed || this.selected) {
             if (this.focus) {
-                topColoring = Color.white;
+                topColoring = Color.black;
                 bottomColoring = this.selectedColor;
             } else {
-                topColoring = Color.white;
+                topColoring = Color.black;
                 bottomColoring = this.selectedColor;
             }
         } else {
             if (this.focus) {
-                topColoring = Color.white;
+                topColoring = Color.black;
                 bottomColoring = Color.darkGray;
             } else {
                 topColoring = Color.gray;
@@ -93,9 +93,9 @@ public class CGraphiteButton extends CButton {
         // Draw the text (if any)
         if (this.getText() != null) {
             if (this.focus) {
-                g2.setColor(Color.white);
+                g2.setColor(Color.black);
             } else {
-                g2.setColor(Color.white);
+                g2.setColor(Color.black);
             }
             Font font = g2.getFont().deriveFont((float) (((float) buttonHeight) * .4));
             g2.setFont(font);

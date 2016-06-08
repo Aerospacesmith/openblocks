@@ -83,11 +83,11 @@ public abstract class LabelWidget extends JComponent {
         this.labelBeforeEdit = initLabelText;
 
         //set up textfield colors
-        textField.setForeground(Color.WHITE);//white text
+        textField.setForeground(Color.black);//white text
         textField.setBackground(fieldColor);//background matching block color
-        textField.setCaretColor(Color.WHITE);//white caret
-        textField.setSelectionColor(Color.BLACK);//black highlight
-        textField.setSelectedTextColor(Color.WHITE);//white text when highlighted
+        textField.setCaretColor(Color.black);//white caret
+        textField.setSelectionColor(Color.WHITE);//black highlight
+        textField.setSelectedTextColor(Color.BLACK);//white text when highlighted
         textField.setBorder(textFieldBorder);
         textField.setMargin(textFieldBorder.getBorderInsets(textField));
     }
@@ -618,17 +618,17 @@ public abstract class LabelWidget extends JComponent {
             //DO NOT DRAW SUPER's to prevent drawing of label's string.
             //Implecations: background not automatically drawn
             //super.paint(g);
-
+/*
             //draw shadows
             for (int i = 0; i < shadowPositionArray.length; i++) {
                 int dx = shadowPositionArray[i][0];
                 int dy = shadowPositionArray[i][1];
-                g2.setColor(new Color(0, 0, 0, shadowColorArray[i]));
+                g2.setColor(new Color(0.5f, 0.5f, 0.5f, shadowColorArray[i]));
                 g2.drawString(this.getText(), (int) ((4 + dx) * offsetSize), this.getHeight() + (int) ((dy - 6) * offsetSize));
             }
-
+*/
             //draw main Text
-            g2.setColor(Color.white);
+            g2.setColor(Color.black);
             g2.drawString(this.getText(), (int) ((4) * offsetSize), this.getHeight() + (int) ((-6) * offsetSize));
         }
 

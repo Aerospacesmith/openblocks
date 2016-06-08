@@ -205,18 +205,19 @@ public class GlassCard implements ActionListener, PropertyChangeListener {
                 Rectangle2D textBounds = metrics.getStringBounds(text, g2);
                 float x = (float) ((this.getWidth() / 2) - (textBounds.getWidth() / 2));
                 float y = (float) ((this.getHeight() / 2) + (textBounds.getHeight() / 2)) - metrics.getDescent();
-
+/*
                 g.setColor(Color.black);
                 for (int i = 0; i < shadowPositionArray.length; i++) {
                     int dx = shadowPositionArray[i][0];
                     int dy = shadowPositionArray[i][1];
-                    g2.setColor(new Color(0, 0, 0, shadowColorArray[i]));
+                    g2.setColor(new Color(0.5f, 0.5f, 0.5f, shadowColorArray[i]));
                     g2.drawString(text, x + (int) ((dx) * offsetSize), y + (int) ((dy) * offsetSize));
                 }
+*/				
                 if (canvas.getHighlight() != null) {
                     g.setColor(canvas.getHighlight());
                 } else {
-                    g.setColor(Color.white);
+                    g.setColor(Color.black);
                 }
                 g2.drawString(text, x, y);
             }

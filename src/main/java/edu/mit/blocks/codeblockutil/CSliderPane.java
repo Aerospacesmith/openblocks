@@ -351,7 +351,7 @@ public class CSliderPane extends JPanel implements ComponentListener {
             super(text);
             this.setOpaque(false);
             this.setFont(new Font("Monospaced", Font.PLAIN, 9));
-            this.setForeground(Color.white);
+            this.setForeground(Color.black);
             this.setBorder(null);
             this.addFocusListener(this);
             this.addMouseListener(this);
@@ -371,7 +371,7 @@ public class CSliderPane extends JPanel implements ComponentListener {
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            this.setBorder(BorderFactory.createLineBorder(Color.white));
+            this.setBorder(BorderFactory.createLineBorder(Color.black));
         }
         //remove white border when mouse leaves
 

@@ -356,11 +356,11 @@ public class CSlider extends JPanel implements MouseListener, MouseMotionListene
         //draw shapes
         g2.setPaint(new GradientPaint(
                 0, blueprint.trackTop, this.leadingColor,
-                0, blueprint.trackBottom, Color.white, false));
+                0, blueprint.trackBottom, Color.black, false));
         g2.fill(leading);
         g2.setPaint(new GradientPaint(
                 0, blueprint.trackTop, this.trailingColor,
-                0, blueprint.trackBottom, Color.white, false));
+                0, blueprint.trackBottom, Color.black, false));
         g2.fill(trailing);
 
         g2.setColor(new Color(250, 250, 250, 100));
@@ -378,7 +378,7 @@ public class CSlider extends JPanel implements MouseListener, MouseMotionListene
         // draws the start label if start mark is turned on
         // depending on what the start mark was set as when initialized
         if (this.startMark) {
-            g2.setColor(Color.white);
+            g2.setColor(Color.black);
             Font font = new Font("Dialog", Font.PLAIN, 8);
             FontMetrics metrics = getFontMetrics(font);
             // gets the width of the text so that the words can be centered later on

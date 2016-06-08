@@ -50,7 +50,7 @@ public class CTabButton extends CButton {
         int highlightHeight = buttonHeight / 2 - HIGHLIGHT_INSET;
         int highlightWidth = buttonWidth - (HIGHLIGHT_INSET * 2) + 1;
         if (this.focus || this.selected) {
-            topColoring = Color.white;
+            topColoring = Color.black;
             bottomColoring = this.selectedColor;
         } else {
             topColoring = Color.gray;
@@ -67,10 +67,10 @@ public class CTabButton extends CButton {
         Font font;
         if (this.getText() != null) {
             if (this.selected) {
-                g2.setColor(Color.white);
+                g2.setColor(Color.black);
                 font = new Font("Ariel", Font.BOLD, buttonHeight * 2 / 3);
             } else {
-                g2.setColor(Color.white);
+                g2.setColor(Color.black);
                 font = new Font("Ariel", Font.PLAIN, buttonHeight * 2 / 3);
                 //font = g2.getFont().deriveFont((float)(((float)buttonHeight) * .4));
             }
