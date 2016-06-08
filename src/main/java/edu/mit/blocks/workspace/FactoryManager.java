@@ -612,7 +612,7 @@ public class FactoryManager implements WorkspaceWidget, ComponentListener, Works
      */
     public void addStaticBlock(RenderableBlock block, String drawer) {
         for (FactoryCanvas canvas : this.staticCanvases) {
-            if (canvas.getName().equals(drawer)) {
+        	if (canvas.getName().equals(drawer)) {
                 if (block == null || Block.NULL.equals(block.getBlockID())) {
                     printError("Attempting to add a null instance of block");
                     return;
@@ -774,7 +774,6 @@ public class FactoryManager implements WorkspaceWidget, ComponentListener, Works
 
     public void addBlock(RenderableBlock block) {
     }
-
     public void addBlocks(Collection<RenderableBlock> blocks) {
     }
 
@@ -810,7 +809,18 @@ public class FactoryManager implements WorkspaceWidget, ComponentListener, Works
     public boolean contains(int x, int y) {
         return this.navigator.getJComponent().contains(x, y);
     }
-
+    
+    private String staticdrawer(BlockStub stub) {
+	    for (FactoryCanvas canvas : this.staticCanvases) {
+	    	for (RenderableBlock bl : canvas.getBlocks()) {
+	    		if (bl.getGenus().equals(stub.getParentGenus())) {
+	    			return canvas.getName();
+	    		}
+	    	}
+	    }
+		return null;
+    }
+    
     public void workspaceEventOccurred(WorkspaceEvent event) {
         //THIS ENTIRE METHOD IS A HACK!
         //PLEASE CHANGE WITH CAUTION
@@ -822,9 +832,9 @@ public class FactoryManager implements WorkspaceWidget, ComponentListener, Works
                 //block may not be null if this is a block added event
                 if (block.hasStubs()) {
                     for (BlockStub stub : block.getFreshStubs()) {
-                        this.addDynamicBlock(
+                        this.addStaticBlock(
                                 new FactoryRenderableBlock(event.getWorkspace(), this, stub.getBlockID()),
-                                page.getPageDrawer());
+                                staticdrawer(stub));	//drawerName);	//"Procedure");//	page.getPageDrawer());	//
                     }
                 }
             }

@@ -66,6 +66,10 @@ public class WorkspaceEnvironment {
     public long getNextBlockID() {
     	return this.nextBlockID++;
     }
+    
+    public void setNextBlockID(long blockID) {
+    	nextBlockID = blockID;
+    }
 
     // BlockStubs
 
@@ -156,5 +160,9 @@ public class WorkspaceEnvironment {
         nameToGenus.clear();
     }
 
-
+    //add by HE Qichen 20120126
+    public Iterable<RenderableBlock> getRenderableBlocks()
+    {
+    	return allRenderableBlocks.values();
+    }
 }

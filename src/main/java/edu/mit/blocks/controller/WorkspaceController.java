@@ -13,6 +13,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -36,11 +38,21 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathConstants;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.EntityResolver;
+
+import edu.mit.blocks.codeblocks.ProcedureOutputManager;	//*****
 
 import edu.mit.blocks.codeblocks.BlockConnectorShape;
 import edu.mit.blocks.codeblocks.BlockGenus;
@@ -48,6 +60,9 @@ import edu.mit.blocks.codeblocks.BlockLinkChecker;
 import edu.mit.blocks.codeblocks.CommandRule;
 import edu.mit.blocks.codeblocks.Constants;
 import edu.mit.blocks.codeblocks.SocketRule;
+import edu.mit.blocks.codeblocks.ParamRule;
+import edu.mit.blocks.codeblocks.PolyRule;
+import edu.mit.blocks.codeblocks.StackRule;
 import edu.mit.blocks.workspace.SearchBar;
 import edu.mit.blocks.workspace.SearchableContainer;
 import edu.mit.blocks.workspace.Workspace;
@@ -71,8 +86,9 @@ public class WorkspaceController {
 
     //flag to indicate if a new lang definition file has been set
     private boolean langDefDirty = true;
-
-    //flag to indicate if a workspace has been loaded/initialized
+    // handle the case of loading the DTD from jar file. 
+    private InputStream langDefDtd;
+    //flag to indicate if a workspace has been loaded/initialized 
     private boolean workspaceLoaded = false;
     // last directory that was selected with open or save action
     private File lastDirectory;
@@ -80,6 +96,14 @@ public class WorkspaceController {
     private File selectedFile;
     // Reference kept to be able to update frame title with current loaded file
     private JFrame frame;
+    
+    // I18N resource bundle
+    private ResourceBundle langResourceBundle;
+	// List of styles
+    private List<String[]> styleList;
+    
+    private static ProcedureOutputManager pom;	//*****
+    
 
     /**
      * Constructs a WorkspaceController instance that manages the
@@ -88,6 +112,19 @@ public class WorkspaceController {
      */
     public WorkspaceController() {
         this.workspace = new Workspace();
+        pom = new ProcedureOutputManager(workspace);	//*****
+    }
+    
+    public void setLangDefDtd(InputStream is) {
+    	langDefDtd = is;
+    }
+    
+    public void setLangResourceBundle(ResourceBundle bundle) {
+    	langResourceBundle = bundle;
+    }
+    
+    public void setStyleList(List<String[]> list) {
+    	styleList = list;
     }
 
     /**
@@ -124,7 +161,18 @@ public class WorkspaceController {
         final Document doc;
         try {
             builder = factory.newDocumentBuilder();
+            if (langDefDtd != null) {
+            	builder.setEntityResolver(new EntityResolver () {
+            		public InputSource resolveEntity( String publicId, String systemId) throws SAXException, IOException {
+            			return new InputSource(langDefDtd);
+            		}
+            	});
+            }
             doc = builder.parse(in);
+            // TODO modify the L10N text and style here
+            ardublockLocalize(doc);
+            ardublockStyling(doc);
+            
             langDefRoot = doc.getDocumentElement();
             langDefDirty = true;
         } catch (ParserConfigurationException e) {
@@ -133,6 +181,93 @@ public class WorkspaceController {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * Styling the color of the BlockGenus and other elements with color
+     */
+	private void ardublockStyling(Document doc) {
+		if (styleList != null) {
+			XPathFactory factory = XPathFactory.newInstance();
+			for (String[] style : styleList) {
+				XPath xpath = factory.newXPath();
+				try {
+					// XPathExpression expr = xpath.compile("//BlockGenus[@name[starts-with(.,\"Tinker\")]]/@color");
+					XPathExpression expr = xpath.compile(style[0]);
+					NodeList bgs = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+					for (int i = 0; i < bgs.getLength(); i++) {
+						Node bg = bgs.item(i);
+						bg.setNodeValue(style[1]);
+						// bg.setAttribute("color", "128 0 0");
+					}
+				} catch (XPathExpressionException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+    
+    /** 
+     * l10n process for ArduBlock
+     */
+    private void ardublockLocalize(Document doc) {
+        if (langResourceBundle != null) {
+        	NodeList nodes = doc.getElementsByTagName("BlockGenus");
+        	for (int i = 0 ; i < nodes.getLength(); i++) {
+        		Element elm = (Element)nodes.item(i);
+        		String name = elm.getAttribute("name");
+				
+        		// System.out.println("Translating BlockGenu:" + name);
+				
+        		String altName = langResourceBundle.getString("bg." + name);
+        		if (altName != null) {
+        			elm.setAttribute("initlabel", altName);
+        		}
+				NodeList descriptions = elm.getElementsByTagName("description");
+				Element description = (Element)descriptions.item(0);
+				if (description != null) {
+					NodeList texts = description.getElementsByTagName("text");
+					Element text = (Element)texts.item(0);
+					if (text != null) {
+						String pname = "bg." + name + ".description";
+						try {
+							altName = langResourceBundle.getString(pname);
+							if (altName != null) {
+								text.setTextContent(altName);
+							}
+						} catch (java.util.MissingResourceException mre) {
+							System.err.println("ardublock.xml: missing " + pname);
+						}
+					}
+				}
+				NodeList arg_descs = elm.getElementsByTagName("arg-description");
+				for (int j = 0 ; j < arg_descs.getLength(); j++) {
+					Element arg_desc = (Element)arg_descs.item(j);
+					String arg_name = arg_desc.getAttribute("name");
+					// System.out.println("bg." + name + ".arg_desc." + arg_name);
+				}
+			}
+        	nodes = doc.getElementsByTagName("BlockDrawer");
+        	for (int i = 0 ; i < nodes.getLength(); i++) {
+        		Element elm = (Element)nodes.item(i);
+        		String name = elm.getAttribute("name");
+        		String altName = langResourceBundle.getString(name);
+        		if (altName != null) {
+        			elm.setAttribute("name", altName);
+        		}
+        	}
+        	nodes = doc.getElementsByTagName("BlockConnector");
+        	for (int i = 0 ; i < nodes.getLength(); i++) {
+        		Element elm = (Element)nodes.item(i);
+        		String name = elm.getAttribute("label");
+        		if (name.startsWith("bc.")) {
+					String altName = langResourceBundle.getString(name);
+					if (altName != null) {
+						elm.setAttribute("label", altName);
+					}
+				}
+        	}
         }
     }
 
@@ -152,6 +287,9 @@ public class WorkspaceController {
         //load rules
         BlockLinkChecker.addRule(workspace, new CommandRule(workspace));
         BlockLinkChecker.addRule(workspace, new SocketRule());
+        BlockLinkChecker.addRule(workspace, new PolyRule(workspace));
+        BlockLinkChecker.addRule(workspace, new StackRule(workspace));
+        BlockLinkChecker.addRule(workspace, new ParamRule());
 
         //set the dirty flag for the language definition file
         //to false now that the lang file has been loaded
@@ -228,9 +366,9 @@ public class WorkspaceController {
             }
 
             document.appendChild(documentElement);
-            if (validate) {
-                validate(document);
-            }
+            //if (validate) {
+            //    validate(document);
+            //}
 
             return document;
         }
@@ -247,7 +385,7 @@ public class WorkspaceController {
     private void validate(Document document) {
         try {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            URL schemaUrl = ClassLoader.getSystemResource("edu/mit/blocks/codeblocks/codeblocks.xsd");
+            URL schemaUrl = this.getClass().getResource("/edu/mit/blocks/codeblocks/codeblocks.xsd");
             Schema schema = schemaFactory.newSchema(schemaUrl);
             Validator validator = schema.newValidator();
             validator.validate(new DOMSource(document));
@@ -276,6 +414,7 @@ public class WorkspaceController {
         }
         workspace.loadWorkspaceFrom(null, langDefRoot);
         workspaceLoaded = true;
+        
     }
 
     /**
@@ -284,7 +423,8 @@ public class WorkspaceController {
      * been specified for this programming project.
      * @param path String file path of the programming project to load
      */
-    public void loadProjectFromPath(final String path) {
+    public void loadProjectFromPath(final String path) throws IOException
+    {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         final DocumentBuilder builder;
@@ -306,7 +446,31 @@ public class WorkspaceController {
             throw new RuntimeException(e);
         } catch (SAXException e) {
             throw new RuntimeException(e);
-        } catch (IOException e) {
+        }
+    }
+    
+    public void loadProjectFromInputStream(final InputStream is) throws IOException
+    {
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        final DocumentBuilder builder;
+        final Document doc;
+        try {
+            builder = factory.newDocumentBuilder();
+            doc = builder.parse(is);
+
+            // XXX here, we could be strict and only allow valid documents...
+            // validate(doc);
+            final Element projectRoot = doc.getDocumentElement();
+            //load the canvas (or pages and page blocks if any) blocks from the save file
+            //also load drawers, or any custom drawers from file.  if no custom drawers
+            //are present in root, then the default set of drawers is loaded from
+            //langDefRoot
+            workspace.loadWorkspaceFrom(projectRoot, langDefRoot);
+            workspaceLoaded = true;
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
             throw new RuntimeException(e);
         }
     }
@@ -363,6 +527,7 @@ public class WorkspaceController {
             }
             workspace.loadWorkspaceFrom(projectRoot, langRoot);
             workspaceLoaded = true;
+
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         } catch (SAXException e) {
@@ -381,6 +546,9 @@ public class WorkspaceController {
         //clear all drawers and their content
         //clear all block and renderable block instances
         workspace.reset();
+        //clear procedure output information
+        ProcedureOutputManager.reset();	//*****
+
     }
 
     /**
@@ -426,7 +594,14 @@ public class WorkspaceController {
                 lastDirectory = selectedFile.getParentFile();
                 String selectedPath = selectedFile.getPath();
                 loadFreshWorkspace();
-                loadProjectFromPath(selectedPath);
+                try
+                {
+                	loadProjectFromPath(selectedPath);
+                }
+                catch (IOException ee)
+                {
+                	throw new RuntimeException(ee);
+                }
             }
         }
     }
@@ -547,7 +722,7 @@ public class WorkspaceController {
     private void createAndShowGUI() {
         frame = new JFrame("WorkspaceDemo");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setBounds(100, 100, 500, 500);
+        frame.setBounds(100, 100, 800, 600);
         final SearchBar sb = new SearchBar("Search blocks",
                 "Search for blocks in the drawers and workspace", workspace);
         for (final SearchableContainer con : getAllSearchableContainers()) {

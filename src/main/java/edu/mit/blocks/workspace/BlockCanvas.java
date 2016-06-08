@@ -31,6 +31,8 @@ import edu.mit.blocks.codeblockutil.CScrollPane.ScrollPolicy;
 import edu.mit.blocks.renderable.RenderableBlock;
 import org.w3c.dom.NodeList;
 
+import edu.mit.blocks.codeblocks.ProcedureOutputManager;
+
 /**
  * A BlockCanvas is a container of Pages and is a scrollable
  * panel.  When a page is added to a BlockCanvas, that
@@ -60,7 +62,7 @@ public class BlockCanvas implements PageChangeListener, ISupportMemento {
     private CScrollPane scrollPane;
     /** The workspace in use */
     private final Workspace workspace;
-
+    
     private boolean collapsible = false;
 
     //////////////////////////////
@@ -239,7 +241,7 @@ public class BlockCanvas implements PageChangeListener, ISupportMemento {
      * @requires none
      * @return page at position or null if non exists at position
      */
-    protected Page getPageAt(int position) {
+    public Page getPageAt(int position) {
         if (hasPageAt(position)) {
             return pages.get(position);
         } else {
@@ -411,13 +413,8 @@ public class BlockCanvas implements PageChangeListener, ISupportMemento {
      */
     public void reformBlockCanvas() {
         int widthCounter = 0;
-        int maxHeight = 0;
         for (int i = 0; i < pages.size(); i++) {
             Page p = pages.get(i);
-            // compute maximum overall page height.
-            if (p.getMinimumPixelHeight()>maxHeight) {
-                maxHeight = p.getMinimumPixelHeight();
-            }
             if (p.getDefaultPageColor() == null) {
                 if (i % 2 == 1) {
                     p.setPageColor(new Color(30, 30, 30));
@@ -436,7 +433,7 @@ public class BlockCanvas implements PageChangeListener, ISupportMemento {
                     5,
                     d.getLeftPage().getJComponent().getHeight());
         }
-        canvas.setPreferredSize(new Dimension(widthCounter, (int) (maxHeight * Page.getZoomLevel())));
+        canvas.setPreferredSize(new Dimension(widthCounter, (int) (Page.DEFAULT_ABSTRACT_HEIGHT * Page.getZoomLevel())));
         scrollPane.revalidate();
         scrollPane.repaint();
     }
@@ -482,7 +479,7 @@ public class BlockCanvas implements PageChangeListener, ISupportMemento {
         //load pages, page drawers, and their blocks from save file
         //PageDrawerManager.loadPagesAndDrawers(root);
         PageDrawerLoadingUtils.loadPagesAndDrawers(workspace, root, workspace.getFactoryManager());
-
+        
         final NodeList pagesRoot = root.getElementsByTagName("Pages");
         if (pagesRoot != null && pagesRoot.getLength() > 0) {
             final Node pagesNode = pagesRoot.item(0);
@@ -502,6 +499,7 @@ public class BlockCanvas implements PageChangeListener, ISupportMemento {
                 PageChangeEventManager.notifyListeners();
             }
         }
+
     }
 
     //////////////////////////////
